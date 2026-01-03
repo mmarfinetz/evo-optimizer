@@ -1,0 +1,91 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "evo-optimizer"
+version = "0.1.0"
+description = "An evolved deep learning optimizer discovered via genetic algorithm search"
+readme = "README.md"
+license = "MIT"
+authors = [
+    { name = "Mitchell Marfinetz", email = "mitchmar@sas.upenn.edu" }
+]
+keywords = [
+    "deep-learning",
+    "optimizer",
+    "pytorch",
+    "machine-learning",
+    "neural-networks",
+    "adam",
+    "genetic-algorithm",
+    "automl",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+requires-python = ">=3.8"
+dependencies = [
+    "torch>=1.10.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0",
+    "pytest-cov>=4.0",
+    "black>=23.0",
+    "ruff>=0.1.0",
+    "mypy>=1.0",
+]
+benchmark = [
+    "torchvision>=0.11.0",
+    "matplotlib>=3.5.0",
+    "pandas>=1.4.0",
+    "tqdm>=4.64.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/mmarfinetz/evo-optimizer"
+Documentation = "https://github.com/mmarfinetz/evo-optimizer#readme"
+Repository = "https://github.com/mmarfinetz/evo-optimizer"
+Issues = "https://github.com/mmarfinetz/evo-optimizer/issues"
+Paper = "https://arxiv.org/abs/2512.11853"
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "/src",
+    "/tests",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/evo_optimizer"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-v --cov=evo_optimizer --cov-report=term-missing"
+
+[tool.black]
+line-length = 88
+target-version = ["py38", "py39", "py310", "py311", "py312"]
+
+[tool.ruff]
+line-length = 88
+select = ["E", "F", "I", "W"]
+ignore = ["E501"]
+
+[tool.mypy]
+python_version = "3.8"
+warn_return_any = true
+warn_unused_configs = true
+ignore_missing_imports = true
