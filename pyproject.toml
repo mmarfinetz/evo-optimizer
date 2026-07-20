@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "evo-optimizer"
-version = "0.1.0"
+version = "0.2.0"
 description = "An evolved deep learning optimizer discovered via genetic algorithm search"
 readme = "README.md"
 license = "MIT"
@@ -41,6 +41,13 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+tensorflow = [
+    "tensorflow>=2.15,<2.16",
+]
+all = [
+    "torch>=1.10.0",
+    "tensorflow>=2.15,<2.16",
+]
 dev = [
     "pytest>=7.0",
     "pytest-cov>=4.0",

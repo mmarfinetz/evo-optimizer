@@ -8,11 +8,23 @@ An evolved deep learning optimizer discovered via genetic algorithm search. Outp
 
 ## Installation
 
+For the existing PyTorch package behavior:
+
 ```bash
 pip install evo-optimizer
 ```
 
-## Quick Start
+For TensorFlow/Keras support:
+
+```bash
+pip install "evo-optimizer[tensorflow]"
+```
+
+TensorFlow is optional and is not imported by the package root. Apple Silicon
+users may need to install the TensorFlow package appropriate for their platform
+and Python version.
+
+## PyTorch Usage
 
 ```python
 from evo_optimizer import EvoOptimizer
@@ -25,6 +37,62 @@ for step, (inputs, targets) in enumerate(dataloader):
     loss = loss_fn(model(inputs), targets)
     loss.backward()
     optimizer.step(step=step)  # Pass step for warmup/cosine scheduling
+```
+
+The existing PyTorch imports remain the stable public API:
+
+```python
+from evo_optimizer import EvoOptimizer
+from evo_optimizer import EvoOptimizerSimplified
+from evo_optimizer import evo_optimizer_step
+```
+
+## Keras Usage
+
+```python
+import math
+import tensorflow as tf
+
+from evo_optimizer.keras import KerasEvoOptimizer
+
+batch_size = 64
+epochs = 20
+training_samples = 28_709
+
+steps_per_epoch = math.ceil(training_samples / batch_size)
+total_steps = steps_per_epoch * epochs
+
+optimizer = KerasEvoOptimizer(
+    learning_rate=4e-4,
+    warmup_steps=100,
+    total_steps=total_steps,
+    use_warmup=True,
+    use_cosine_decay=True,
+)
+
+model.compile(
+    optimizer=optimizer,
+    loss="categorical_crossentropy",
+    metrics=["accuracy"],
+)
+
+model.fit(dataset, epochs=epochs)
+```
+
+When EvoOptimizer internal warmup or cosine decay is enabled, do not also use
+`ReduceLROnPlateau`, `LearningRateScheduler`, or another external
+learning-rate schedule. Users who want an external Keras learning-rate schedule
+must disable both internal scheduling options:
+
+```python
+optimizer = KerasEvoOptimizer(
+    learning_rate=tf.keras.optimizers.schedules.CosineDecay(
+        initial_learning_rate=4e-4,
+        decay_steps=10_000,
+    ),
+    use_warmup=False,
+    use_cosine_decay=False,
+)
 ```
 
 ## What Makes It Different?
@@ -96,6 +164,32 @@ for step in range(num_steps):
     
     model.zero_grad()
 ```
+
+### KerasEvoOptimizer
+
+```python
+from evo_optimizer.keras import KerasEvoOptimizer
+
+KerasEvoOptimizer(
+    learning_rate=1.2e-3,
+    beta_1=0.8553,
+    beta_2=0.9358,
+    epsilon=5.4e-9,
+    weight_decay=9.7e-4,
+    warmup_steps=100,
+    total_steps=None,
+    use_warmup=True,
+    use_cosine_decay=True,
+    alpha_sign=0.7345,
+    alpha_adam=3.6352,
+)
+```
+
+The Keras implementation uses optimizer-managed state variables for first and
+second moments, supports Keras serialization, and can be saved with compiled
+models in the native `.keras` format. `tf.IndexedSlices` sparse gradients are
+currently rejected with a clear error instead of being densified. When
+`total_steps=None`, internal cosine decay is disabled.
 
 ## Benchmark Results
 
